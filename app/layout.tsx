@@ -4,7 +4,8 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { cn } from "@/lib/utils";
 import HeaderWrapper from "@/components/common/header-wrapper";
-
+import Footer from "@/components/common/footer";
+import type { ReactNode } from "react";
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const outfit = Outfit({
@@ -21,7 +22,7 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: ReactNode;
 }>) {
   return (
     <ClerkProvider>
@@ -31,8 +32,8 @@ export default function RootLayout({
       >
         <body>
           <HeaderWrapper/>
-          
           {children}
+          <Footer />
         </body>
       </html>
     </ClerkProvider>
