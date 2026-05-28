@@ -84,3 +84,23 @@ bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Roadmap
+
+- [x] Landing page — Hero, Features, How It Works, Pricing, CTA sections
+- [x] Clerk authentication — Sign In / Sign Up / UserButton
+- [x] Header with Free / PRO badge based on Clerk subscription plan
+- [x] Scroll-triggered animations via reusable `MotionDiv` (Framer Motion v12)
+- [x] Clerk `PricingTable` for subscription management
+- [x] shadcn/ui component library setup
+- [x] Footer
+- [ ] `/dashboard` — user dashboard with match overview and learning progress
+- [ ] `/community` — browse, search, and join learning communities
+- [ ] `/chat` — real-time messaging with matched learning partners
+- [ ] User profile setup — learning goals, skill level, and topics of interest
+- [ ] AI-powered learning partner matching engine
+- [ ] Database integration (Drizzle ORM + Neon PostgreSQL)
+- [ ] Learning goal tracking and progress updates
+- [ ] AI-generated session summaries after each chat
+- [ ] Mobile navigation — hamburger menu for small screens
+- [ ] Notification system — new matches, messages, and session reminders
