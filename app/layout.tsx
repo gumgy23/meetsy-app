@@ -2,10 +2,10 @@ import type { Metadata } from "next";
 import {  Outfit, Inter } from "next/font/google";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import { cn } from "@/lib/utils";
 import HeaderWrapper from "@/components/common/header-wrapper";
 import Footer from "@/components/common/footer";
 import type { ReactNode } from "react";
+import { QueryProvider } from "@/components/providers/query-provider";
 const inter = Inter({subsets:['latin'],variable:'--font-sans'});
 
 const outfit = Outfit({
@@ -27,13 +27,14 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html
-        lang="en"
-        className={cn("h-full", "antialiased", outfit.className, "font-sans", inter.variable)}
-      >
-        <body>
-          <HeaderWrapper/>
-          {children}
-          <Footer />
+        lang="en">
+        <body className="{'${outfitFont.className}
+        antialiased'}">
+          <QueryProvider>
+            <HeaderWrapper/>
+            {children}
+            <Footer />
+          </QueryProvider>
         </body>
       </html>
     </ClerkProvider>
