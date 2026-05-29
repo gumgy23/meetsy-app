@@ -12,6 +12,7 @@ Meetsy is an AI-powered learning platform that connects learners with matched pa
 - **Auth**: Clerk (sign-in, sign-up, user management, billing plans)
 - **Database**: Neon PostgreSQL (serverless)
 - **ORM**: Drizzle ORM + Drizzle Kit
+- **API Layer**: Hono (type-safe RPC with Hono Client)
 - **Data Fetching**: TanStack React Query v5
 - **Icons**: Lucide React
 - **Fonts**: Outfit (display), Inter (sans)
@@ -28,50 +29,56 @@ Meetsy is an AI-powered learning platform that connects learners with matched pa
 - Clerk `PricingTable` embedded in the Pricing section
 - Footer with copyright
 - Background gradient effects per section
-- Dashboard page with React Query data fetching
+- Hono API with auth middleware — all routes protected by Clerk session except public ones
+- Type-safe API client using Hono RPC (`hc<AppType>`)
+- Community routes — list all communities, list joined communities, join a community
+- User utility — auto-creates DB user on first login via `getOrCreateUserByClerkId`
+- Dashboard page — pending matches banner, stats cards, and joined communities list
 
 ## Project Structure
 
 ```
 app/
-  layout.tsx                    # Root layout with ClerkProvider, QueryProvider, fonts, HeaderWrapper, Footer
-  page.tsx                      # Home page — assembles all landing sections with MotionDiv wrappers
+  layout.tsx                        # Root layout with ClerkProvider, QueryProvider, fonts, HeaderWrapper, Footer
+  page.tsx                          # Home page — assembles all landing sections with MotionDiv wrappers
   (main)/
-    Layout.tsx                  # Shared layout for authenticated app pages
-    dashboard/page.tsx          # Dashboard page with community data fetching
-  sign-in/[[...sign]]/          # Clerk sign-in page
-  sign-up/[[...sign-up]]/       # Clerk sign-up page
+    Layout.tsx                      # Shared layout for authenticated app pages
+    dashboard/page.tsx              # Dashboard — stats, pending matches banner, joined communities list
+  api/
+    [[...route]]/route.ts           # Hono catch-all API handler with auth middleware
+  sign-in/[[...sign]]/              # Clerk sign-in page
+  sign-up/[[...sign-up]]/           # Clerk sign-up page
+server/
+  community-routes.tsx              # Hono community routes (GET /all, GET /, POST /:id/join)
 components/
   common/
-    header.tsx                  # Client header with nav, auth buttons, plan badge
-    header-wrapper.tsx          # Server component that checks Clerk plan and renders Header
-    footer.tsx                  # Footer with copyright
-    section-heading.tsx         # Reusable heading + description block for each section
+    header.tsx                      # Client header with nav, auth buttons, plan badge
+    header-wrapper.tsx              # Server component that checks Clerk plan and renders Header
+    footer.tsx                      # Footer with copyright
+    section-heading.tsx             # Reusable heading + description block for each section
+  dashboard/
+    stats-card.tsx                  # Stats card component (title + numeric value)
   landing/
-    hero-section.tsx            # Hero with headline, CTA buttons, animated badge
-    feature-section.tsx         # 6-feature grid using Card components
-    how-it-works.tsx            # 4-step numbered card grid
-    pricing-section.tsx         # Clerk PricingTable wrapped in a section
-    cta-section.tsx             # Bottom call-to-action with sign-up link
-    background-gradient.tsx     # Gradient overlays (page-wide + hero-specific)
+    hero-section.tsx                # Hero with headline, CTA buttons, animated badge
+    feature-section.tsx             # 6-feature grid using Card components
+    how-it-works.tsx                # 4-step numbered card grid
+    pricing-section.tsx             # Clerk PricingTable wrapped in a section
+    cta-section.tsx                 # Bottom call-to-action with sign-up link
+    background-gradient.tsx         # Gradient overlays (page-wide + hero-specific)
   providers/
-    query-provider.tsx          # React Query client provider with default options
+    query-provider.tsx              # React Query client provider with default options
   ui/
-    motion-div.tsx              # Reusable scroll-triggered animation wrapper (Framer Motion)
-    button.tsx                  # shadcn/ui Button
-    badge.tsx                   # shadcn/ui Badge
-    card.tsx                    # shadcn/ui Card
-    input.tsx                   # shadcn/ui Input
-    avatar.tsx                  # shadcn/ui Avatar
-    skeleton.tsx                # shadcn/ui Skeleton
-    textarea.tsx                # shadcn/ui Textarea
+    motion-div.tsx                  # Reusable scroll-triggered animation wrapper (Framer Motion)
+    button.tsx / card.tsx / ...     # shadcn/ui components
 db/
-  index.ts                      # Drizzle ORM instance with PostgreSQL connection pool
-  schema.ts                     # Database schema (users, communities, matches, messages, etc.)
-  seed.ts                       # Database seed script
+  index.ts                          # Drizzle ORM instance with PostgreSQL connection pool
+  schema.ts                         # Database schema (users, communities, matches, messages, etc.)
+  seed.ts                           # Database seed script
 lib/
-  utils.ts                      # Utility helpers (cn)
-drizzle.config.ts               # Drizzle Kit config
+  api-client.ts                     # Hono RPC client (type-safe, zero-boilerplate API calls)
+  user-utils.ts                     # getOrCreateUserByClerkId — syncs Clerk user to DB
+  utils.ts                          # Utility helpers (cn)
+drizzle.config.ts                   # Drizzle Kit config
 ```
 
 ## Database Schema
@@ -131,12 +138,16 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - [x] Footer
 - [x] Database schema — Drizzle ORM + Neon PostgreSQL (users, communities, matches, messages, summaries)
 - [x] React Query provider setup
-- [x] Dashboard page scaffold with React Query data fetching
+- [x] Hono API layer — catch-all route handler with Clerk auth middleware
+- [x] Hono RPC client — type-safe API calls with zero boilerplate
+- [x] Community API routes — `GET /api/communities/all`, `GET /api/communities`, `POST /api/communities/:id/join`
+- [x] User utility — auto-creates or retrieves DB user on first Clerk login
+- [x] Dashboard page — stats cards, pending matches banner, joined communities list
 
 ### In Progress
-- [ ] `/dashboard` — match overview, joined communities, and learning progress
-- [ ] `/community` — browse, search, and join learning communities
+- [ ] `/communities` — browse, search, and join learning communities
 - [ ] Clerk webhook → sync users to database on sign-up
+- [ ] Fix join route to use DB user UUID instead of Clerk ID
 
 ### Planned
 - [ ] `/chat` — real-time messaging with matched learning partners
