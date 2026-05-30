@@ -2,14 +2,11 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { communities } from "@/db/schema";
-import { client } from "@/lib/api-client";
 import { useUser } from "@clerk/nextjs";
-import { useQuery } from "@tanstack/react-query";
 import { MessageCircleIcon, UsersIcon } from "lucide-react";
 import Link from "next/link";
 import StatsCard from "@/components/dashboard/stats-card";
-import { match } from "assert";
+import { useCommunities } from "@/hooks/use-communities";
 
 export default function DashboardPage(){
 
@@ -19,33 +16,25 @@ export default function DashboardPage(){
     // queryKey: cache key — React Query refetches when this changes.
     // queryFn: temporary mock with 1s delay; replace with a real API call later.
     const {
-        data: userCommunities, 
-        isLoading: isLoadingUserCommunities, 
-        error: errorUserCommunities
-    } = useQuery({
-        queryKey: ['communities'],
-        queryFn: async () => {
-           const res = await client.api.communities.$get();
-            if (!res.ok) {
-                throw new Error("Failed to fetch communities");
-            }
-           return res.json();
-           console.log(communities.name);
-        }
-    });
+        data: Communities, 
+        isLoading: isLoadingCommunities, 
+        error: errorCommunities
+    } = useCommunities();
 
     const pendingMatches=6;
 
-    if(isLoadingUserCommunities) return <div>Loading..</div>
-    if(errorUserCommunities) return <div>Error: {errorUserCommunities instanceof Error ? errorUserCommunities.message : "Something went wrong"}</div>
+    if(isLoadingCommunities) return <div>Loading..</div>
+    if(errorCommunities) return <div>Error: {errorCommunities instanceof Error ? errorCommunities.message : "Something went wrong"}</div>
 
     return (
         <div className="page-wrapper">
             <div>
                 <h1 
                     className="text-3xl font-bold tracking-tight"
-                    >Dashboard Page</h1>
-                <p>Welcome Back, { user?.user?.firstName || "user" }!</p>
+                    >Dashboard</h1>
+                <p className="text-muted-foreground">
+                    Welcome Back, { user?.user?.firstName || "user" }!
+                </p>
             </div>
 
             <Card className="border-primary">
@@ -69,7 +58,7 @@ export default function DashboardPage(){
             <div className="grid gap-4 md:grid-cols-4">
                 <StatsCard 
                     title="Your Communities"
-                    value={userCommunities?.length || 0}
+                    value={Communities?.length || 0}
                 />
                  <StatsCard 
                     title="learning Goals"
@@ -131,7 +120,7 @@ export default function DashboardPage(){
                                 {/* community = one row from the query result (communityMembers joined with communities table)
                                     community.id         = communityMembers.id (NOT the community's own ID)
                                     community.community  = nested data from the communities table (name, description, etc.) */}
-                                {userCommunities?.map((community: any) => (
+                                {Communities?.map((community: any) => (
                                         <Card  className="shadow-none" key={community.id}>
 
                                             <Link href={`/communities/${community.id}`}>

@@ -29,7 +29,7 @@ export default function Header({
                                 Dashboard
                             </Button>
                         </Link>
-                        <Link href="/community" className="text-sm font-medium text-gray-600 hover:text-gray-900">
+                        <Link href="/communities" className="text-sm font-medium text-gray-600 hover:text-gray-900">
                             <Button variant={"ghost"} size={"sm"}>
                                 <UserIcon className="size-4 text-primary" />
                                 Community

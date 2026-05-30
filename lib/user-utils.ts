@@ -24,7 +24,7 @@ export const getOrCreateUserByClerkId = async (clerkId: string ) => {
     .from(users)
     .where(eq(users.clerkId, clerkId));
 
-    console.log(user);
+   
     if(!user){
        const  clerkUser = await currentUser();
        if (!clerkUser){
