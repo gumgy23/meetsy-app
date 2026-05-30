@@ -23,7 +23,7 @@ Meetsy is an AI-powered learning platform that connects learners with matched pa
 - Full landing page with animated sections (Hero, Features, How It Works, Pricing, CTA)
 - Scroll-triggered animations via reusable `MotionDiv` component
 - Clerk authentication with sign-in and sign-up pages
-- Header with navigation links (Dashboard, Community, Chat)
+- Header with navigation links (Dashboard, Communities, Chat)
 - Pro/Free plan badge shown in the header based on Clerk subscription plan
 - User avatar and account button when signed in
 - Clerk `PricingTable` embedded in the Pricing section
@@ -31,9 +31,13 @@ Meetsy is an AI-powered learning platform that connects learners with matched pa
 - Background gradient effects per section
 - Hono API with auth middleware — all routes protected by Clerk session except public ones
 - Type-safe API client using Hono RPC (`hc<AppType>`)
-- Community routes — list all communities, list joined communities, join a community
+- Community routes — list all, list joined, join (with duplicate check), fetch learning goals per community
 - User utility — auto-creates DB user on first login via `getOrCreateUserByClerkId`
 - Dashboard page — pending matches banner, stats cards, and joined communities list
+- Communities page — sidebar community picker, learning goals tab, AI matching tab
+- Browse & join page — grid of all communities with joined state detection
+- `useCommunities`, `useAllCommunities`, `useCommunityGoals`, `useJoinCommunity` React Query hooks
+- AI matching component — triggers partner matching based on learning goals
 
 ## Project Structure
 
@@ -44,18 +48,24 @@ app/
   (main)/
     Layout.tsx                      # Shared layout for authenticated app pages
     dashboard/page.tsx              # Dashboard — stats, pending matches banner, joined communities list
+    communities/
+      layout.tsx                    # Communities shell — page header, "Join More" button
+      page.tsx                      # My Communities — community picker, goals tab, AI matching tab
+      all/page.tsx                  # Browse all communities — grid with join / already-joined state
   api/
     [[...route]]/route.ts           # Hono catch-all API handler with auth middleware
   sign-in/[[...sign]]/              # Clerk sign-in page
   sign-up/[[...sign-up]]/           # Clerk sign-up page
 server/
-  community-routes.tsx              # Hono community routes (GET /all, GET /, POST /:id/join)
+  community-routes.tsx              # Hono community routes (GET /all, GET /, POST /:id/join, GET /:id/goals)
 components/
   common/
     header.tsx                      # Client header with nav, auth buttons, plan badge
     header-wrapper.tsx              # Server component that checks Clerk plan and renders Header
     footer.tsx                      # Footer with copyright
     section-heading.tsx             # Reusable heading + description block for each section
+  communities/
+    ai-matching.tsx                 # AI matching CTA — disabled until user has learning goals
   dashboard/
     stats-card.tsx                  # Stats card component (title + numeric value)
   landing/
@@ -70,6 +80,8 @@ components/
   ui/
     motion-div.tsx                  # Reusable scroll-triggered animation wrapper (Framer Motion)
     button.tsx / card.tsx / ...     # shadcn/ui components
+hooks/
+  use-communities.ts                # useCommunities, useAllCommunities, useCommunityGoals, useJoinCommunity
 db/
   index.ts                          # Drizzle ORM instance with PostgreSQL connection pool
   schema.ts                         # Database schema (users, communities, matches, messages, etc.)
@@ -140,19 +152,23 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - [x] React Query provider setup
 - [x] Hono API layer — catch-all route handler with Clerk auth middleware
 - [x] Hono RPC client — type-safe API calls with zero boilerplate
-- [x] Community API routes — `GET /api/communities/all`, `GET /api/communities`, `POST /api/communities/:id/join`
+- [x] Community API routes — `GET /api/communities/all`, `GET /api/communities`, `POST /api/communities/:id/join`, `GET /api/communities/:id/goals`
+- [x] Join route uses DB user UUID and rejects duplicate membership
 - [x] User utility — auto-creates or retrieves DB user on first Clerk login
 - [x] Dashboard page — stats cards, pending matches banner, joined communities list
+- [x] `/communities` — community picker sidebar, learning goals tab, AI matching tab
+- [x] `/communities/all` — browse all communities, join with already-joined detection
+- [x] React Query hooks — `useCommunities`, `useAllCommunities`, `useCommunityGoals`, `useJoinCommunity`
+- [x] AI matching component — CTA to find learning partners, disabled until goals are set
 
 ### In Progress
-- [ ] `/communities` — browse, search, and join learning communities
 - [ ] Clerk webhook → sync users to database on sign-up
-- [ ] Fix join route to use DB user UUID instead of Clerk ID
+- [ ] Learning goal creation UI — add goals from within a community
 
 ### Planned
 - [ ] `/chat` — real-time messaging with matched learning partners
+- [ ] AI-powered learning partner matching engine (wire up the AI matching button)
 - [ ] User profile setup — learning goals, skill level, and topics of interest
-- [ ] AI-powered learning partner matching engine
 - [ ] Learning goal tracking and progress updates
 - [ ] AI-generated session summaries after each chat
 - [ ] Mobile navigation — hamburger menu for small screens
